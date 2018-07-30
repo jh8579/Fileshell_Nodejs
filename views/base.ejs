@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title> FileShell</title>
+  <link rel="stylesheet" href="/stylesheets/layout_base.css">
+  <link rel="stylesheet" href="/stylesheets/dropzone.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+  <div class="left_bar">
+    <a href="/"> <img class='shell_icon' src="/images/shell.png" width="200" height="200" /></a>
+    <div class="nav">
+      <ul class="nav-list">
+        <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
+        <li class="nav-item"><a href="/file" class="nav-link">File</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="header">
+    <a href="/logout"> <img class ="logout_icon" src= "/images/logout.png" width="50" height="50"  align="right"/></a>
+    <div class="search_form">
+      <form method="get" action='/search/'>
+        <input type="query" name="query" id="query" required="required" placeholder="검색할 파일이나 폴더 이름">
+        <button class="searchButton" id="searchButton" type="submit"><img src="/images/search_icon.png" width="50" height="50"></buton>
+      </form>
+    </div>
+  </div>
+
+  <%- content %>
+
+</body>
+
+</html>

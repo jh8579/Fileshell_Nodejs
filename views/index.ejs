@@ -1,0 +1,107 @@
+<% extend('base') %>
+  <div class="frame_home">
+    <div class="content">
+      <div class = "shiftleft">
+          <h2>즐겨찾기</h2>
+      </div>
+      <table id="hor-minimalist-b">
+          <thead>
+          <tr>
+              <td width=300><p>제목</p></td>
+              <td width=350><p>등록 시간</p></td>
+              <td width=350><p>최근 열람 시간</p></td>
+              <td width=100><p>즐겨찾기</p></td>
+              <td width=100><p>파일 크기</p></td>
+              <td width=100><p>파일 삭제</p></td>
+          </tr>
+          </thead>
+          <% if(favorFolders){%>
+              <tbody>
+              <% for (fileRow in favorFolders){ %>
+                  <tr>
+                      <td width=50><a href="" valign=center><%= favorFolders[fileRow].title %></a></td>
+                      <td width=100><p href=""><%= favorFolders[fileRow].createTime %></p></td>
+                      <td width=100><p  href=""><%= favorFolders[fileRow].updateTime %></p></td>
+                      <% if (favorFolders[fileRow].isFavor){%>
+                          <td width=100><a href="changeFavor/folder/<%= favorFolders[fileRow].title %>" align=center><img class = 'star_icon' src= "images/color_star.png" width="50" height="50"/></a></td>
+                      <% }else {%>
+                          <td width=100><a href="changeFavor/folder/<%= favorFolders[fileRow].title %>" align=center><img class = 'star_icon' src= "images/gray_star.png" width="50" height="50"/></a></td>
+                      <% } %>
+                      <td width=100><p  href=""><%= favorFolders[fileRow].size %></p></td>
+                      <td width=100><a  href="" align=center><img class = 'trash_icon' src= "images/trashcan.png" width="50" height="50"/></a></td>
+                  </tr>
+              <% } %>
+              </tbody>
+          <% }%>
+          <% if(favorFiles){%>
+              <tbody>
+              <% for (fileRow in favorFiles){ %>
+                  <tr>
+                      <td width=50><a href="" valign=center><%= favorFiles[fileRow].title %></a></td>
+                      <td width=100><p href=""><%= favorFiles[fileRow].createTime %></p></td>
+                      <td width=100><p  href=""><%= favorFiles[fileRow].updateTime %></p></td>
+                      <% if (favorFiles[fileRow].isFavor){%>
+                          <td width=100><a href="changeFavor/file/<%= favorFiles[fileRow].title %>" align=center><img class = 'star_icon' src= "images/color_star.png" width="50" height="50"/></a></td>
+                      <% }else {%>
+                          <td width=100><a href="changeFavor/file/<%= favorFiles[fileRow].title %>" align=center><img class = 'star_icon' src= "images/gray_star.png" width="50" height="50"/></a></td>
+                      <% } %>
+                      <td width=100><p  href=""><%= favorFiles[fileRow].size %></p></td>
+                      <td width=100><a  href="" align=center><img class = 'trash_icon' src= "images/trashcan.png" width="50" height="50"/></a></td>
+                  </tr>
+              <% } %>
+              </tbody>
+          <% }%>
+      </table>
+      <div class = "shiftleft">
+          <h2>최근 열람</h2>
+      </div>
+      <table id="hor-minimalist-b">
+          <thead>
+          <tr>
+              <td width=300><p>제목</p></td>
+              <td width=350><p>등록 시간</p></td>
+              <td width=350><p>최근 열람 시간</p></td>
+              <td width=100><p>즐겨찾기</p></td>
+              <td width=100><p>파일 크기</p></td>
+              <td width=100><p>파일 삭제</p></td>
+          </tr>
+          </thead>
+          <% if(recentFolders){%>
+              <tbody>
+              <% for (fileRow in recentFolders){ %>
+                  <tr>
+                      <td width=50><a href="" valign=center><%= recentFolders[fileRow].title %></a></td>
+                      <td width=100><p href=""><%= recentFolders[fileRow].createTime %></p></td>
+                      <td width=100><p  href=""><%= recentFolders[fileRow].updateTime %></p></td>
+                      <% if (recentFolders[fileRow].isFavor){%>
+                          <td width=100><a href="changeFavor/folder/<%= recentFolders[fileRow].title %>" align=center><img class = 'star_icon' src= "images/color_star.png" width="50" height="50"/></a></td>
+                      <% }else {%>
+                          <td width=100><a href="changeFavor/folder/<%= recentFolders[fileRow].title %>" align=center><img class = 'star_icon' src= "images/gray_star.png" width="50" height="50"/></a></td>
+                      <% } %>
+                      <td width=100><p  href=""><%= recentFolders[fileRow].size %></p></td>
+                      <td width=100><a  href="" align=center><img class = 'trash_icon' src= "images/trashcan.png" width="50" height="50"/></a></td>
+                  </tr>
+              <% } %>
+              </tbody>
+          <% }%>
+          <% if(recentFiles){%>
+              <tbody>
+              <% for (fileRow in recentFiles){ %>
+                  <tr>
+                      <td width=50><a href="" valign=center><%= recentFiles[fileRow].title %></a></td>
+                      <td width=100><p href=""><%= recentFiles[fileRow].createTime %></p></td>
+                      <td width=100><p  href=""><%= recentFiles[fileRow].updateTime %></p></td>
+                      <% if (recentFiles[fileRow].isFavor){%>
+                          <td width=100><a href="changeFavor/file/<%= recentFiles[fileRow].title %>" align=center><img class = 'star_icon' src= "images/color_star.png" width="50" height="50"/></a></td>
+                      <% }else {%>
+                          <td width=100><a href="changeFavor/file/<%= recentFiles[fileRow].title %>" align=center><img class = 'star_icon' src= "images/gray_star.png" width="50" height="50"/></a></td>
+                      <% } %>
+                      <td width=100><p  href=""><%= recentFiles[fileRow].size %></p></td>
+                      <td width=100><a  href="" align=center><img class = 'trash_icon' src= "images/trashcan.png" width="50" height="50"/></a></td>
+                  </tr>
+              <% } %>
+              </tbody>
+          <% }%>
+      </table>
+    </div>
+  </div>

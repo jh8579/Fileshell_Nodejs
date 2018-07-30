@@ -1,7 +1,7 @@
-# Elastic Beanstalk을 이용한 Autoscaling이 기능한 Cloud Stoarage 웹 서비스 구현
+# Elastic Beanstalk을 이용한 Autoscaling이 기능한 Cloud Storage 웹 서비스 구현
 ==============
 ### Project Title : FileShell_Nodejs
-### 1. Nodejs와 AWS EC2와 S3를 사용하여 드랍박스와 같은 Cloud Stoarage 웹 서비스 구현
+### 1. Nodejs와 AWS EC2와 S3를 사용하여 드랍박스와 같은 Cloud Storage 웹 서비스 구현
 ### 2. Elastic Beanstalk와 RDS를 연동하여 Autoscaling이 가능한 웹 서비스 구현
 ----------------
 ## 프로젝트 주요 기능
@@ -29,7 +29,7 @@
 	- 폴더와 파일은 서로를 Folder, Datas라는 변수를 가진다.
 	- 트리 구조를 통해 파일 삭제가 이루어지므로 하위 폴더의 완벽한 삭제가 이루어진다.
 ----------------
-## 
+## Deploy 과정
 
 1. Elastic Beanstalk에 압축한 파일 업로드 
 2. RDS 연동(rds 한글 인코딩 수정 필요)

@@ -35,12 +35,6 @@ var conn = mysql.createConnection({
   database : 'innodb',
   multipleStatements: true
 });
-// var conn = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: 'dkfkq486',
-//   database: 'fileshell',
-//   multipleStatements: true
 
 conn.connect(function(err) {
   if (err) {

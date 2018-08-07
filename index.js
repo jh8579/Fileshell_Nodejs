@@ -1,205 +1,49 @@
 var http = require('http');
-var url = require('url');
-
-var async = require('async');
-
-require('date-utils');
-
 var express = require('express');
+var url = require('url');
 var path = require('path');
+var async = require('async');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var fs = require('fs');
-var s3 = require('./s3.js');
-
-// session
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
-
-// password
 var bkfd2Password = require('pbkdf2-password');
 var hasher = bkfd2Password();
-
-// file upload
+var fs = require('fs');
+var s3 = require('./s3.js');
 var multer = require('multer');
 var memoryStorage = multer.memoryStorage();
 var upload = multer({storage : memoryStorage});
-
-// db connect
-var mysql = require('mysql');
-var conn = mysql.createConnection({
-  host     : process.env.RDS_HOSTNAME,
-  user     : process.env.RDS_USERNAME,
-  password : process.env.RDS_PASSWORD,
-  port     : process.env.RDS_PORT,
-  database : 'innodb',
-  multipleStatements: true
-});
-
-conn.connect(function(err) {
-  if (err) {
-    console.error('Database connection failed: ' + err.stack);
-    return;
-  }
-
-  console.log('Connected to database.');
-});
-
-// passport.js
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
-var flash = require('connect-flash');
+var conn = require('./routes/db');
+require('date-utils');
 
 var app = express();
 
 app.set('port', process.env.PORT || 3000);
-// ejs 설정
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.engine('ejs', require('express-ejs-extend'));
 
-// static 파일
 app.use(express.static('public'));
-
-// post body 설정
 app.use(bodyParser.urlencoded({
   extended: false
 }));
 app.use(bodyParser.json());
-
-
-// 쿠키 설정
-app.use(cookieParser('shitthefuuuuuck'));
-
-// 세션 설정
 app.use(session({
   secret: 'shitthefuuuuuck',
   resave: false,
   saveUninitialized: true,
   store: new MySQLStore({
-    host     : process.env.RDS_HOSTNAME,
-    user     : process.env.RDS_USERNAME,
-    password : process.env.RDS_PASSWORD,
-    port     : process.env.RDS_PORT,
-    database : 'innodb',
+    host     : 'localhost',
+    user     : 'root',
+    password : 'dkfkq486',
+    port     : 3306,
+    database : 'fileshell',
   })
 }))
 
-app.use(flash());
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.serializeUser(function(user, done) {
-  return done(null, user.authId);
-});
-passport.deserializeUser(function(id, done) {
-  var sql = "SELECT * FROM users WHERE authId=?";
-  conn.query(sql, [id], function(err, results) {
-    var user = results[0];
-    return done(null, user);
-  });
-});
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    var uname = username;
-    var pwd = password;
-
-    var sql = "SELECT * FROM users WHERE authId=?";
-    conn.query(sql, ['locals:' + uname], function(err, results) {
-      if (err) {
-        return done(null, false, {
-          message: "Incorrect Username"
-        });
-      }
-      var user = results[0];
-      if (!user) {
-        return done(null, false, {
-          message: "Incorrect Username"
-        });
-      }
-      console.log(user);
-      return hasher({
-          password: pwd,
-          salt: user.salt
-        },
-        function(err, pass, salt, hash) {
-          if (hash === user.password) {
-            done(null, user);
-          } else {
-            done(null, false, {
-              message: "Incorrect Password"
-            });
-          }
-        });
-
-    });
-  }
-));
-passport.use(new FacebookStrategy({
-    clientID: '513867469033293',
-    clientSecret: '851751c0198d6fd80e6a0678fe80cfdc',
-    callbackURL: '/auth/facebook/callback',
-    profileFields:['id', 'email', 'displayName']
-  },
-  function(accessToken, refreshToken, profile, done) {
-    var authId = 'facebook:' + profile.id;
-
-    var user = {
-      'authId': authId,
-      'displayName': profile.displayName,
-      'username': profile.emails[0].value
-    }
-    var sql = "INSERT IGNORE users SET ?";
-    conn.query(sql, [user], function(err, results) {
-      if (err) {
-        console.log(err);
-        done(null, false, {
-          message: "Incorrect User"
-        });
-      }
-
-      var sql = "SELECT * from users WHERE authId= ?";
-      conn.query(sql, [authId], function(err, results) {
-        if(err){
-          console.log(err);
-          done(null, false, {
-            message: "Incorrect User"
-          });
-        }else{
-          var temp = new Date();
-          var date = temp.toFormat('YYYY-MM-DD HH24:MI:SS');
-
-          var userId = results[0].id;
-          var newFolder={
-            title: 'file',
-            user: userId,
-            dir: '/file',
-            createTime: date,
-            updateTime: date,
-            pDir: '',
-            authId: ''
-          }
-
-          var sql = "INSERT IGNORE folder SET ?";
-          conn.query(sql, newFolder, function(err, results) {
-            if (err) {
-              done(null, false, {
-                message: "Incorrect User"
-              });
-            } else {
-              s3.addUser(user.username);
-              return done(null, user);
-            }
-          });
-
-        }
-      });
-
-
-    });
-  }
-));
+// passport.js
+var passport = require('./routes/passport')(app, conn, hasher);
 
 // 홈 관련
 app.get('/', (req, res) => {
@@ -216,98 +60,13 @@ app.get('/', (req, res) => {
       });
     });
   } else {
+    console.log("세션 없음");
     res.redirect('/auth/login');
   }
 });
 
-// 회원가입 관련
-app.post('/addUser', (req, res) => {
-  hasher({
-    password: req.body.password
-  }, function(err, pass, salt, hash) {
-    var user = {
-      'authId': 'locals:' + req.body.username,
-      'username': req.body.username,
-      'password': hash,
-      'salt': salt,
-      'displayName': req.body.displayName
-    }
-
-    var sql = "INSERT INTO users SET ?";
-    conn.query(sql, user, function(err, results) {
-      if (err) {
-        console.log(err);
-        res.redirect('/auth/login');
-      } else {
-        var temp = new Date();
-        var date = temp.toFormat('YYYY-MM-DD HH24:MI:SS');
-        var newFolder={
-          title: 'file',
-          user: user.id,
-          createTime: date,
-          updateTime: date,
-          dir: '/file',
-          pDir: '',
-        }
-
-        var sql = "INSERT INTO folder SET ?";
-        conn.query(sql, newFolder, function(err, results) {
-          if (err) {
-            console.log(err);
-          } else {
-            s3.addUser(user.username);
-          }
-        });
-
-        req.login(user, function(err) {
-          req.session.save(function() {
-            res.redirect('/');
-          })
-        })
-      }
-    });
-
-  });
-
-});
-
-// 로그인/로그아웃 관련
-app.get('/auth/login', (req, res) => {
-  console.log(req.flash('error'));
-  res.render('login');
-});
-
-app.post('/auth/login', passport.authenticate(
-  'local', {
-    successRedirect: '/',
-    failureRedirect: '/auth/login',
-    failureFlash: true,
-  }
-));
-
-app.get('/auth/facebook', passport.authenticate('facebook',
-  {scope:'email'}
-  )
-);
-
-app.get('/auth/facebook/callback', passport.authenticate(
-    'facebook', {
-      failureRedirect: '/auth/login'
-    }
-  ),
-  function(req, res) {
-    req.session.save(function() {
-      res.redirect('/')
-    })
-  }
-);
-
-app.get('/logout', (req, res) => {
-  req.logout();
-  req.session.save(function() {
-    res.redirect('/');
-  })
-});
+var auth = require('./routes/auth')(passport, hasher, conn, s3, app);
+app.use('/auth/', auth);
 
 // 검색 관련
 app.get('/search', (req, res) => {

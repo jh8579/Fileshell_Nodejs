@@ -1,21 +1,11 @@
   // db connect
-  // var mysql = require('mysql');
-  // var conn = mysql.createConnection({
-  //   host     : process.env.RDS_HOSTNAME,
-  //   user     : process.env.RDS_USERNAME,
-  //   password : process.env.RDS_PASSWORD,
-  //   port     : process.env.RDS_PORT,
-  //   database : 'innodb',
-  //   multipleStatements: true
-  // });
-
   var mysql = require('mysql');
   var conn = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'dkfkq486',
-    port     : 3306,
-    database : 'fileshell',
+    host     : process.env.RDS_HOSTNAME,
+    user     : process.env.RDS_USERNAME,
+    password : process.env.RDS_PASSWORD,
+    port     : process.env.RDS_PORT,
+    database : 'innodb',
     multipleStatements: true
   });
 
@@ -27,5 +17,5 @@
 
     console.log('Connected to database.');
   });
-  
+
 module.exports = conn;

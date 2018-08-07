@@ -34,11 +34,11 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: new MySQLStore({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'dkfkq486',
-    port     : 3306,
-    database : 'fileshell',
+    host     : process.env.RDS_HOSTNAME,
+    user     : process.env.RDS_USERNAME,
+    password : process.env.RDS_PASSWORD,
+    port     : process.env.RDS_PORT,
+    database : 'innodb',
   })
 }))
 
